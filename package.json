@@ -23,9 +23,18 @@
     "sezzle",
     "sdk",
     "sezzle sdk",
-    "pay now, buy later"
+    "pay now, buy later",
+    "sezzle node",
+    "Sezzle"
   ],
-  "author": "Paiman-Rasoli",
+  "author": {
+    "name": "Paiman-Rasoli",
+    "email": "paimanrasoli789@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Paiman-Rasoli/sezzle-sdk"
+  },
   "license": "MIT",
   "dependencies": {
     "sezzle-sdk": "^1.0.0"
