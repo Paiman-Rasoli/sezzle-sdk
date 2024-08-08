@@ -2,13 +2,25 @@ import {
   Authentication,
   CardData,
   ConstructorInput,
+  CreateCaptureAmount,
   CreateSession,
+  CreateUpChargeAmount,
   CreateVirtualCard,
+  CreateWebhooks,
+  OrderDetails,
+  Price,
+  ReAuthorize,
+  RefundTransaction,
+  ReleaseTransaction,
   Session,
   SessionResponse,
   TokenizationResponse,
+  TriggerTestWebhook,
+  UpChargeTransaction,
   UpdateCardSession,
+  UpdateOrder,
   VirtualCardResponse,
+  Webhook,
 } from "./dto";
 
 class Sezzle {
@@ -109,6 +121,205 @@ class Sezzle {
     }
   }
 
+  /**
+   * Use this endpoint to get details on an existing order.
+   * @param {string} order_uuid
+   * @returns {OrderDetails}
+   */
+  async getOrder(order_uuid: string): Promise<OrderDetails> {
+    const auth = await this.getAuthentication();
+
+    return this.sendRequest(`/order/${order_uuid}`, auth, "GET");
+  }
+
+  /**
+   * Use this endpoint to update an existing order. Only the reference ID can be updated. Reference IDs are what shows up in your Merchant Dashboard for the orders and can be used to link your internal system and Sezzle.
+   * @param {UpdateOrder}
+   */
+
+  async updateOrder(input: UpdateOrder): Promise<void> {
+    const auth = await this.getAuthentication();
+
+    await this.sendRequest(`/order/${input.order_uuid}`, auth, "PATCH", {
+      reference_id: input.reference_id,
+    });
+  }
+
+  /**
+   * Use this endpoint to capture an amount by order. An example use-case is when an order is broken into multiple shipments, and prior to the shipment you need to capture part of the funds.
+   * @param {CreateCaptureAmount}
+   * @returns
+   */
+  async captureAmountByOrder(
+    input: CreateCaptureAmount
+  ): Promise<{ uuid: string }> {
+    const crypto = await import("crypto");
+    const auth = await this.getAuthentication();
+
+    return this.sendRequest(
+      `/order/${input.order_uuid}/capture`,
+      auth,
+      "POST",
+      { capture_amount: input.capture_amount },
+      {
+        "Sezzle-Request-Id": crypto
+          .randomBytes(12)
+          .toString("hex")
+          .slice(0, 12),
+      }
+    );
+  }
+
+  /**
+   * Use this endpoint to reauthorize an amount by order. An order can only be reauthorized after the initial authorization has expired. Any attempts to reauthorize before the authorization expires will fail. An authorization can be released before expiration, thus allowing the order to be reauthorized.
+   * @param {}
+   */
+  async reAuthorizeAmountByOrder(
+    input: Price & { order_uuid: string }
+  ): Promise<ReAuthorize> {
+    const auth = await this.getAuthentication();
+    const { order_uuid, ...rest } = input;
+
+    const crypto = await import("crypto");
+
+    return this.sendRequest(
+      `/order/${order_uuid}/reauthorize`,
+      auth,
+      "POST",
+      rest,
+      {
+        "Sezzle-Request-Id": crypto
+          .randomBytes(12)
+          .toString("hex")
+          .slice(0, 12),
+      }
+    );
+  }
+
+  /**
+   * Use this endpoint to refund an amount by order. An example use-case is when an order was captured but the customer returned item(s) that requires them to be refunded.
+   * @returns Promise<RefundTransaction>
+   */
+  async refundAmountByOrder(
+    input: Price & { order_uuid: string }
+  ): Promise<RefundTransaction> {
+    const auth = await this.getAuthentication();
+    const { order_uuid, ...rest } = input;
+
+    const crypto = await import("crypto");
+
+    return this.sendRequest(`/order/${order_uuid}/refund`, auth, "POST", rest, {
+      "Sezzle-Request-Id": crypto.randomBytes(12).toString("hex").slice(0, 12),
+    });
+  }
+  /**
+   * Use this endpoint to release an amount by order. An example use-case is when an order is unable to be fully fulfilled and part of the authorization needs to be released. Then a capture can be called for the remaining amount.
+   * @returns
+   */
+  async releaseAmountByOrder(
+    input: Price & { order_uuid: string }
+  ): Promise<ReleaseTransaction> {
+    const auth = await this.getAuthentication();
+    const { order_uuid, ...rest } = input;
+
+    const crypto = await import("crypto");
+
+    return this.sendRequest(
+      `/order/${order_uuid}/release`,
+      auth,
+      "POST",
+      rest,
+      {
+        "Sezzle-Request-Id": crypto
+          .randomBytes(12)
+          .toString("hex")
+          .slice(0, 12),
+      }
+    );
+  }
+
+  /**
+   * Use this endpoint to upcharge an amount by order. The new order will be sent to the shopper as a Pay In Full order.
+   * @warning
+   * This API is in development and will be available shortly.
+   * @returns
+   */
+  async upChargeAmountByOrder(
+    input: CreateUpChargeAmount
+  ): Promise<UpChargeTransaction> {
+    const auth = await this.getAuthentication();
+    const { order_uuid, ...rest } = input;
+
+    const crypto = await import("crypto");
+
+    return this.sendRequest(
+      `/order/${order_uuid}/upcharge`,
+      auth,
+      "POST",
+      rest,
+      {
+        "Sezzle-Request-Id": crypto
+          .randomBytes(12)
+          .toString("hex")
+          .slice(0, 12),
+      }
+    );
+  }
+
+  /**
+   * Use this endpoint to delete a checkout for an order. The request fails if the checkout has already been successfully completed by the customer.
+   * @param order_uuid Order Id
+   * @returns
+   */
+  async DeleteCheckout(order_uuid: string): Promise<void> {
+    const auth = await this.getAuthentication();
+
+    return this.sendRequest(`/order/${order_uuid}/checkout`, auth, "DELETE");
+  }
+
+  /**
+   * This endpoint can be used to subscribe to webhooks
+   * @param {CreateWebhooks}
+   * @returns
+   */
+  async createWebhooks(
+    input: CreateWebhooks
+  ): Promise<Pick<Webhook, "uuid" | "links">> {
+    const auth = await this.getAuthentication();
+
+    return this.sendRequest("/webhooks", auth, "POST", input);
+  }
+
+  /**
+   * You can get a list of your webhooks using this endpoint
+   * @returns
+   */
+  async listWebhooks(): Promise<Array<Webhook>> {
+    const auth = await this.getAuthentication();
+
+    return this.sendRequest("/webhooks", auth, "GET");
+  }
+
+  /**
+   * You can delete your webhooks using this endpoint
+   * @param {string} webhook_uuid
+   */
+  async deleteWebhook(webhook_uuid: string): Promise<void> {
+    const auth = await this.getAuthentication();
+
+    return this.sendRequest(`/webhooks/${webhook_uuid}`, auth, "DELETE");
+  }
+
+  /**
+   * You can trigger a test event using this endpoint. It will send the URL a mimic of the webhook event.
+   *  @param {TriggerTestWebhook}
+   */
+  async triggerTestWebhookEvent(input: TriggerTestWebhook): Promise<void> {
+    const auth = await this.getAuthentication();
+
+    return this.sendRequest(`/webhooks/test`, auth, "POST", input);
+  }
+
   private async getAuthentication(): Promise<Authentication> {
     try {
       const req = await fetch(`${this.SEZZLE_BASE_URL}/authentication`, {
@@ -145,8 +356,9 @@ class Sezzle {
   private async sendRequest(
     PATH: string,
     auth: Authentication,
-    method: "GET" | "POST" | "PATCH",
-    payload?: Record<string, any>
+    method: "GET" | "POST" | "PATCH" | "DELETE",
+    payload?: Record<string, any>,
+    customHeaders = {}
   ) {
     try {
       const req = await fetch(`${this.SEZZLE_BASE_URL}${PATH}`, {
@@ -155,6 +367,7 @@ class Sezzle {
         headers: {
           Authorization: `Bearer ${auth.token}`,
           ...(method !== "GET" && { "Content-Type": "application/json" }),
+          ...customHeaders,
         },
       });
       const res = await req.json();
@@ -164,3 +377,5 @@ class Sezzle {
     }
   }
 }
+
+module.exports = Sezzle;

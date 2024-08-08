@@ -1,4 +1,11 @@
-import { Customer, Order, URL_OBJECT } from "./types";
+import {
+  Customer,
+  Events,
+  INTENT_TYPE,
+  Order,
+  Price,
+  URL_OBJECT,
+} from "./types";
 
 export interface ConstructorInput {
   /** API identity key issued by Sezzle */
@@ -85,4 +92,32 @@ export interface CreateVirtualCard {
    * Value of token required to use tokenization
    */
   card_response_format?: "token";
+}
+
+export interface UpdateOrder {
+  reference_id: string;
+  order_uuid: string;
+}
+
+export interface CreateCaptureAmount {
+  order_uuid: string;
+  capture_amount: Price;
+}
+
+export type CreateUpChargeAmount = Price & { order_uuid: string } & {
+  intent: INTENT_TYPE;
+};
+
+export interface CreateWebhooks {
+  /** The url you are using to receive webhooks */
+  url: string;
+  /** An array of events to subscribe to */
+  events: Array<Events>;
+}
+
+export interface TriggerTestWebhook {
+  /** One of the Valid Webhook Events */
+  event: Events;
+  /** A url to receive the test webhook. If omitted, the test webhook is sent to all urls subscribed to that event. */
+  url: string;
 }

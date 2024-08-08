@@ -329,7 +329,7 @@ export interface Order {
    * @memberof Order
    * @optional
    */
-  metadata?: Record<string, string>;
+  metadata?: Record<any, string>;
 
   /**
    * The shipping fees applied to this order. Must be included in the total.
@@ -594,3 +594,73 @@ export interface UpdateCardSession {
   session_uuid: string;
   order_id: string;
 }
+
+export interface Authorization {
+  authorization_amount: Price;
+  approved: boolean;
+  expiration: string;
+  financing_option: string;
+  sezzle_order_id: string;
+  releases: Array<{
+    uuid: string;
+    amount: Price;
+  }>;
+  captures: Array<{
+    uuid: string;
+    amount: Price;
+  }>;
+  refunds: Array<{
+    uuid: string;
+    amount: Price;
+  }>;
+}
+export interface OrderDetails {
+  uuid: string;
+  links: Array<Link>;
+  intent: INTENT_TYPE;
+  reference_id: string;
+  description: string;
+  checkout_expiration: string;
+  checkout_status: string;
+  metadata: Record<any, string>;
+  order_amount: Price;
+  items: Array<Item>;
+  customer: Omit<Customer, "dob">;
+  authorization: Authorization;
+}
+
+export interface ReAuthorize {
+  uuid: string;
+  links: Array<Link>;
+  intent: INTENT_TYPE;
+  reference_id: string;
+  order_amount: Price;
+  authorization: Pick<
+    Authorization,
+    "authorization_amount" | "approved" | "expiration"
+  >;
+}
+
+export interface RefundTransaction {
+  uuid: string;
+}
+
+export type ReleaseTransaction = RefundTransaction;
+
+export type UpChargeTransaction = RefundTransaction;
+
+export type Events =
+  | "customer.tokenized"
+  | "order.authorized"
+  | "order.captured"
+  | "order.refunded	";
+
+export type Webhook = {
+  uuid: string;
+
+  links: Array<Link>;
+
+  url: string;
+
+  events: Array<Events>;
+};
