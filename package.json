@@ -2,6 +2,14 @@
   "name": "sezzle-sdk",
   "version": "1.0.0",
   "description": "A node SDK for sezzle payment integration.",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -9,8 +17,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsup"
   },
   "keywords": [
     "sezzle",
@@ -20,6 +27,9 @@
   ],
   "author": "Paiman-Rasoli",
   "license": "MIT",
+  "dependencies": {
+    "sezzle-sdk": "^1.0.0"
+  },
   "devDependencies": {
     "ts-node": "^10.9.2",
     "tsup": "^8.2.4",

@@ -23,7 +23,7 @@ import {
   Webhook,
 } from "./dto";
 
-class Sezzle {
+export class Sezzle {
   private SEZZLE_BASE_URL = "https://gateway.sezzle.com/v2";
   private secrets: { public: string; secret: string };
 
@@ -387,5 +387,3 @@ class Sezzle {
     }
   }
 }
-
-module.exports = Sezzle;
