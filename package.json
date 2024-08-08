@@ -1,6 +1,6 @@
 {
   "name": "sezzle-sdk",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A node SDK for sezzle payment integration.",
   "exports": {
     ".": {
@@ -17,7 +17,7 @@
     "package.json"
   ],
   "scripts": {
-    "build": "tsup ./src"
+    "build": "tsup"
   },
   "keywords": [
     "sezzle",
@@ -40,7 +40,6 @@
     "sezzle-sdk": "^1.0.0"
   },
   "devDependencies": {
-    "ts-node": "^10.9.2",
     "tsup": "^8.2.4",
     "typescript": "^5.5.4"
   }
