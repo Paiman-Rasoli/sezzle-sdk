@@ -1,6 +1,8 @@
 # Sezzle SDK
 
-The Sezzle Sdk library provides convenient access to the Sezzle API from applications written in server-side JavaScript.
+The Sezzle Sdk library provides convenient access to the Sezzle API from applications written in server-side JavaScript/TypeScript.
+
+![Sezzle Logo](https://docs.sezzle.com/img/Color-Logo.svg)
 
 ## ⚙️ Install
 

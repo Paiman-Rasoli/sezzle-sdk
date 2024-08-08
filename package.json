@@ -1,6 +1,6 @@
 {
   "name": "sezzle-sdk",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "A node SDK for sezzle payment integration.",
   "exports": {
     ".": {
