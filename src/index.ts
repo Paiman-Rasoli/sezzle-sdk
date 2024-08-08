@@ -320,6 +320,16 @@ class Sezzle {
     return this.sendRequest(`/webhooks/test`, auth, "POST", input);
   }
 
+  /**
+   * You can use this endpoint to get the current state of a tokenization session.
+   * @returns
+   */
+  async getSessionTokenization(token: string) {
+    const auth = await this.getAuthentication();
+
+    return this.sendRequest(`/token/${token}/session`, auth, "POST");
+  }
+
   private async getAuthentication(): Promise<Authentication> {
     try {
       const req = await fetch(`${this.SEZZLE_BASE_URL}/authentication`, {

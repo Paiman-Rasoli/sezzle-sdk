@@ -664,3 +664,14 @@ export type Webhook = {
 
   events: Array<Events>;
 };
+
+export interface SessionTokenization {
+  token: string;
+  expiration: string;
+  links: Array<Link>;
+  customer: {
+    uuid: string;
+    expiration: string;
+    links: Array<Link>;
+  };
+}
