@@ -121,3 +121,18 @@ export interface TriggerTestWebhook {
   /** A url to receive the test webhook. If omitted, the test webhook is sent to all urls subscribed to that event. */
   url: string;
 }
+
+export interface CreateOrderByCustomer {
+  /** Customer unique ID */
+  customer_uuid: string;
+  /** Accepted values are "AUTH" or "CAPTURE" */
+  intent: INTENT_TYPE;
+  /** A reference ID for the order  */
+  reference_id: string;
+  /** The amount and currency of the order  */
+  order_amount: Price;
+  /** The financing option of the order. Only one option can be included. */
+  financing_options: Array<any>;
+}
+
+export type CreatePreApprove = Price & { customer_uuid: string };

@@ -3,11 +3,17 @@ import {
   CardData,
   ConstructorInput,
   CreateCaptureAmount,
+  CreateOrderByCustomer,
+  CreatePreApprove,
   CreateSession,
   CreateUpChargeAmount,
   CreateVirtualCard,
   CreateWebhooks,
+  CustomerList,
+  CustomerObject,
+  OrderByCustomer,
   OrderDetails,
+  PreApprove,
   Price,
   ReAuthorize,
   RefundTransaction,
@@ -328,6 +334,85 @@ export class Sezzle {
     const auth = await this.getAuthentication();
 
     return this.sendRequest(`/token/${token}/session`, auth, "POST");
+  }
+
+  /**
+   * You can use this endpoint to delete an existing customer
+   * @param {string} customer_uuid
+   * @returns
+   */
+  async deleteCustomer(customer_uuid: string): Promise<void> {
+    const auth = await this.getAuthentication();
+
+    return this.sendRequest(`/customer/${customer_uuid}`, auth, "DELETE");
+  }
+
+  /**
+   * You can use this endpoint to get details on an existing customer
+   * @param {string} customer_uuid
+   * @returns
+   */
+  async getCustomer(customer_uuid: string): Promise<CustomerObject> {
+    const auth = await this.getAuthentication();
+
+    return this.sendRequest(`/customer/${customer_uuid}`, auth, "GET");
+  }
+
+  /**
+   * You can retrieve a list of existing customers using this endpoint.
+   * @returns {Array<CustomerList>}
+   */
+  async getListOfCustomers(): Promise<Array<CustomerList>> {
+    const auth = await this.getAuthentication();
+
+    return this.sendRequest(`/customer`, auth, "GET");
+  }
+
+  /**
+   * You can use this endpoint to create an order for a customer.
+   * Please be sure to check the authorization.approved boolean value for true to determine if the order was created.
+   * @param {CreateOrderByCustomer} input
+   * @returns {OrderByCustomer}
+   */
+  async createOrderByCustomer(
+    input: CreateOrderByCustomer
+  ): Promise<OrderByCustomer> {
+    const auth = await this.getAuthentication();
+    const { customer_uuid, ...rest } = input;
+
+    const crypto = await import("crypto");
+
+    return this.sendRequest(
+      `/customer/${customer_uuid}/order`,
+      auth,
+      "POST",
+      rest,
+      {
+        "Sezzle-Request-Id": crypto
+          .randomBytes(12)
+          .toString("hex")
+          .slice(0, 12),
+      }
+    );
+  }
+
+  /**
+   * The primary purpose of this API is for the merchant to verify a customer will be approved for the order amount prior to creating an order.
+   * @param {CreateOrderByCustomer} input
+   * @returns {PreApprove}
+   */
+  async preApproveAmountByCustomer(
+    input: CreatePreApprove
+  ): Promise<PreApprove> {
+    const auth = await this.getAuthentication();
+    const { customer_uuid, ...rest } = input;
+
+    return this.sendRequest(
+      `/customer/${customer_uuid}/preapprove`,
+      auth,
+      "POST",
+      rest
+    );
   }
 
   private async getAuthentication(): Promise<Authentication> {
