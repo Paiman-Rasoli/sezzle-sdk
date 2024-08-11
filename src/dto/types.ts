@@ -675,3 +675,30 @@ export interface SessionTokenization {
     links: Array<Link>;
   };
 }
+
+export type CustomerObject = Omit<Customer, "tokenize" | "shipping_address"> & {
+  token_expiration: string;
+};
+
+export interface CustomerList {
+  uuid: string;
+  expiration: string;
+  links: Array<Link>;
+}
+
+export interface OrderByCustomer {
+  uuid: string;
+  links: Array<Link>;
+  intent: INTENT_TYPE;
+  reference_id: string;
+  order_amount: Price;
+  authorization: Pick<
+    Authorization,
+    "authorization_amount" | "approved" | "expiration"
+  >;
+}
+
+export interface PreApprove {
+  uuid: string;
+  approved: boolean;
+}
