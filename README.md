@@ -1,5 +1,8 @@
 # Sezzle SDK
 
+![npm downloads](https://img.shields.io/npm/dt/sezzle-sdk)[1]
+[![Telegram](https://img.shields.io/badge/chat-on%20telegram-blue.svg)](https://t.me/paiman05)
+
 The Sezzle Sdk library provides convenient access to the Sezzle API from applications written in server-side JavaScript/TypeScript.
 
 ![Sezzle Logo](https://docs.sezzle.com/img/Color-Logo.svg)
