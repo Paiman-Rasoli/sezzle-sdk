@@ -418,9 +418,8 @@ export class Sezzle {
   }
 
   private async getAuthentication(): Promise<Authentication> {
-    const now = new Date();
-
     if (this.tokenInfo) {
+      const now = new Date();
       const expirationDate = new Date(this.tokenInfo.expiration_date);
 
       if (now < expirationDate) {
