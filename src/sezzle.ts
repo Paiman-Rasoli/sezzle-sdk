@@ -20,7 +20,6 @@ import {
   ReleaseTransaction,
   Session,
   SessionResponse,
-  TokenInfo,
   TokenizationResponse,
   TriggerTestWebhook,
   UpChargeTransaction,
@@ -33,7 +32,7 @@ import {
 export class Sezzle {
   private SEZZLE_BASE_URL = "https://gateway.sezzle.com/v2";
   private secrets: { public: string; secret: string };
-  private tokenInfo: TokenInfo;
+  private tokenInfo: Authentication | null;
 
   constructor(input: ConstructorInput) {
     if (input.environment === "sandbox") {
@@ -43,7 +42,7 @@ export class Sezzle {
       console.error("Public key and Secret Key must be set!");
     }
     this.secrets = { public: input.publicKey, secret: input.secretKey };
-    this.tokenInfo = {};
+    this.tokenInfo = null;
   }
   /**
    * This endpoint creates a session in our system, and it returns the URL that you should redirect the user to. You can use a session to create an order.
@@ -419,31 +418,24 @@ export class Sezzle {
   }
 
   private async getAuthentication(): Promise<Authentication> {
-    const now = new Date().getTime();
+    const now = new Date();
 
-    if (this.tokenInfo?.createdAt && this.tokenInfo?.value?.token) {
-      const diffInMillisecond = now - this.tokenInfo.createdAt;
-      const diffInMinutes = diffInMillisecond / (1000 * 60);
+    if (this.tokenInfo) {
+      const expirationDate = new Date(this.tokenInfo.expiration_date);
 
-      if (diffInMinutes < 120) {
-        return this.tokenInfo.value;
+      if (now < expirationDate) {
+        return this.tokenInfo;
       }
 
       const newToken = await this.generateAuthentication();
-      this.tokenInfo = {
-        createdAt: now,
-        value: newToken,
-      };
+      this.tokenInfo = newToken;
 
       return newToken;
     }
 
     // For the first time this function is calling;
     const firstGeneratedToken = await this.generateAuthentication();
-    this.tokenInfo = {
-      createdAt: now,
-      value: firstGeneratedToken,
-    };
+    this.tokenInfo = firstGeneratedToken;
 
     return firstGeneratedToken;
   }

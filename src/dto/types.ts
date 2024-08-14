@@ -702,8 +702,3 @@ export interface PreApprove {
   uuid: string;
   approved: boolean;
 }
-
-export type TokenInfo = {
-  value?: Authentication;
-  createdAt?: number;
-};
