@@ -32,6 +32,7 @@ import {
 export class Sezzle {
   private SEZZLE_BASE_URL = "https://gateway.sezzle.com/v2";
   private secrets: { public: string; secret: string };
+  private tokenInfo: Authentication | null;
 
   constructor(input: ConstructorInput) {
     if (input.environment === "sandbox") {
@@ -41,6 +42,7 @@ export class Sezzle {
       console.error("Public key and Secret Key must be set!");
     }
     this.secrets = { public: input.publicKey, secret: input.secretKey };
+    this.tokenInfo = null;
   }
   /**
    * This endpoint creates a session in our system, and it returns the URL that you should redirect the user to. You can use a session to create an order.
@@ -416,6 +418,28 @@ export class Sezzle {
   }
 
   private async getAuthentication(): Promise<Authentication> {
+    if (this.tokenInfo) {
+      const now = new Date();
+      const expirationDate = new Date(this.tokenInfo.expiration_date);
+
+      if (now < expirationDate) {
+        return this.tokenInfo;
+      }
+
+      const newToken = await this.generateAuthentication();
+      this.tokenInfo = newToken;
+
+      return newToken;
+    }
+
+    // For the first time this function is calling;
+    const firstGeneratedToken = await this.generateAuthentication();
+    this.tokenInfo = firstGeneratedToken;
+
+    return firstGeneratedToken;
+  }
+
+  private async generateAuthentication(): Promise<Authentication> {
     try {
       const req = await fetch(`${this.SEZZLE_BASE_URL}/authentication`, {
         method: "POST",
